@@ -4,7 +4,7 @@ Belajar Golang <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-ba
 
 ## Deployment
 
-Coming Soon on Railway <img src="https://img.shields.io/badge/Railway-131415?style=for-the-badge&logo=railway&logoColor=white" />
+Coming Soon on Koyeb <img src="https://img.shields.io/badge/Koyeb-0B172E?style=for-the-badge&logo=koyeb&logoColor=white" />
 
 ## Progress Tiap Week
 
