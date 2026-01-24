@@ -92,6 +92,9 @@ func deleteCategory(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Welcome to the Categories API"))
+	})
 	// GET /categories/{id}, PUT /categories/{id}, DELETE /categories/{id}
 	http.HandleFunc("/categories/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {

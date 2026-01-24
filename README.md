@@ -5,6 +5,7 @@ Belajar Golang <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-ba
 ## Deployment
 
 Coming Soon on Koyeb <img src="https://img.shields.io/badge/Koyeb-0B172E?style=for-the-badge&logo=koyeb&logoColor=white" />
+https://categories-otniel.koyeb.app/
 
 ## Progress Tiap Week
 
