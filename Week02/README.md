@@ -63,9 +63,18 @@ Atau jalankan query SQL berikut di PgAdmin / Supabase SQL editor:
 
 ```sql
 CREATE TABLE IF NOT EXISTS categories (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        description TEXT
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price INT DEFAULT 0,
+    stock INT DEFAULT 0,
+    category_id INT,
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 ```
 
@@ -77,6 +86,8 @@ go run main.go
 
 ## API Endpoint
 
+### Categories
+
 | Method | Endpoint | Description | Request Body | Response |
 |---|---|---|---|---|
 | GET | `/categories` | Get all categories | - | `[]Category` |
@@ -85,88 +96,12 @@ go run main.go
 | PUT | `/categories/{id}` | Update category | `{"name": "...", "description": "..."}` | `Category` |
 | DELETE | `/categories/{id}` | Delete category | - | `{"message": "success delete category"}` |
 
-### Request & Response Examples
+### Products
 
-#### 1. GET /categories
-**Description:** Mengambil semua data category.
-**Response (200 OK):**
-```json
-[
-    {
-        "id": 1,
-        "name": "Elektronik",
-        "description": "Barang-barang elektronik"
-    },
-    {
-        "id": 2,
-        "name": "Pakaian",
-        "description": "Berbagai jenis pakaian"
-    }
-]
-```
-
-#### 2. POST /categories
-**Description:** Menambahkan category baru.
-**Request Body:**
-```json
-{
-    "name": "Makanan",
-    "description": "Segala jenis makanan dan minuman"
-}
-```
-**Response (201 Created):**
-```json
-{
-    "id": 3,
-    "name": "Makanan",
-    "description": "Segala jenis makanan dan minuman"
-}
-```
-
-#### 3. GET /categories/{id}
-**Description:** Mengambil satu data category berdasarkan ID.
-**Example:** `/categories/1`
-**Response (200 OK):**
-```json
-{
-    "id": 1,
-    "name": "Elektronik",
-    "description": "Barang-barang elektronik"
-}
-```
-**Response (404 Not Found):**
-```text
-Category not found
-```
-
-#### 4. PUT /categories/{id}
-**Description:** Mengupdate data category berdasarkan ID.
-**Example:** `/categories/1`
-**Request Body:**
-```json
-{
-    "name": "Elektronik & Gadget",
-    "description": "Smartphone, Laptop, dan Aksesoris"
-}
-```
-**Response (200 OK):**
-```json
-{
-    "id": 1,
-    "name": "Elektronik & Gadget",
-    "description": "Smartphone, Laptop, dan Aksesoris"
-}
-```
-
-#### 5. DELETE /categories/{id}
-**Description:** Menghapus category berdasarkan ID.
-**Example:** `/categories/1`
-**Response (200 OK):**
-```json
-{
-    "message": "success delete category"
-}
-```
+| Method | Endpoint | Description | Request Body | Response |
+|---|---|---|---|---|
+| GET | `/products` | Get all products with Category | - | `[]Product` |
+| POST | `/products` | Create product | `{"name": "...", "price": 100, "stock": 10, "category_id": 1}` | `Product` (Created) |
 
 ## Postman Collections
 

@@ -49,10 +49,15 @@ func main() {
 		log.Fatal("Failed to initialize database:", err)
 	}
 
-	// Initialize dependencies
+	// Initialize dependencies (Category)
 	categoryRepo := repositories.NewCategoryRepository(db)
 	categoryService := services.NewCategoryService(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
+	// Initialize dependencies (Product)
+	productRepo := repositories.NewProductRepository(db)
+	productService := services.NewProductService(productRepo)
+	productHandler := handlers.NewProductHandler(productService)
 
 	// Setup routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +66,7 @@ func main() {
 
 	// Route for List and Create
 	http.HandleFunc("/categories", categoryHandler.HandleCategories)
+	http.HandleFunc("/products", productHandler.HandleProducts)
 	
 	// Route for GetByID, Update, Delete. 
 	// Note: http.HandleFunc matches prefix. "/categories/" will match "/categories/1"

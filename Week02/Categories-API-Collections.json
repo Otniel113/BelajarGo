@@ -110,8 +110,49 @@
 					]
 				}
 			},
+			"response": []		},
+		{
+			"name": "GET Products",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{goURL}}/products",
+					"host": [
+						"{{goURL}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
 			"response": []
-		}
+		},
+		{
+			"name": "POST Products",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Laptop Gaming\",\r\n    \"price\": 15000000,\r\n    \"stock\": 5,\r\n    \"category_id\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{goURL}}/products",
+					"host": [
+						"{{goURL}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []		}
 	],
 	"event": [
 		{
