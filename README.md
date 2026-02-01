@@ -15,3 +15,11 @@ Week 01:
 3. Deployment
 
 Lihat [README Week 01](Week01/README.md) untuk detail tugas dan dokumentasi API.
+
+
+Week 02:
+1. Memisahkan folder (modularize)
+2. Menghubungkan ke Database
+3. Setup .env
+
+Lihat [README Week 02](Week02/README.md) untuk detail tugas dan dokumentasi API.
