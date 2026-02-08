@@ -85,6 +85,9 @@ go run main.go
 |---|---|---|---|---|
 | GET | `/products` | Get all products with Category (supports query params `name`) | Optional query params: `name` | `[]Product` |
 | POST | `/products` | Create product | `{"name": "...", "price": 100, "stock": 10, "category_id": 1}` | `Product` (Created) |
+| GET | `/products/{id}` | Get product by ID | - | `Product` |
+| PUT | `/products/{id}` | Update product | `{"name": "...", "price": 200, "stock": 3, "category_id": 1}` | `Product` |
+| DELETE | `/products/{id}` | Delete product | - | `{"message": "success delete product"}` |
 
 ### Transactions
 
@@ -94,6 +97,25 @@ go run main.go
 
 - Headers: `Content-Type: application/json`
 - Errors: `400` for invalid body, `500` for server/repo errors (e.g., insufficient stock)
+
+### Reports
+
+| Method | Endpoint | Description | Query Params | Response |
+|---|---|---|---|---|
+| GET | `/report/today` | Get report for today | - | `Report` |
+| GET | `/report` | Get report for date range | `start_date`, `end_date` (YYYY-MM-DD) | `Report` |
+
+**Response Example:**
+```json
+{
+    "total_revenue": 45000,
+    "total_transaction": 5,
+    "most_sold_product":{
+        "name": "Indomie Goreng",
+        "sold_qty":12
+    }
+}
+```
 
 ## Postman Collections
 

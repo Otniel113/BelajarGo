@@ -3,6 +3,7 @@ package services
 import (
 	"cashier/models"
 	"cashier/repositories"
+	"time"
 )
 
 type TransactionService struct {
@@ -15,4 +16,8 @@ func NewTransactionService(repo *repositories.TransactionRepository) *Transactio
 
 func (s *TransactionService) Checkout(items []models.CheckoutItem, useLock bool) (*models.Transaction, error) {
 	return s.repo.CreateTransaction(items, useLock)
+}
+
+func (s *TransactionService) GetReport(startDate, endDate time.Time) (*models.Report, error) {
+	return s.repo.GetReport(startDate, endDate)
 }

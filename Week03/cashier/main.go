@@ -76,10 +76,14 @@ func main() {
 	// Route for GetByID, Update, Delete. 
 	// Note: http.HandleFunc matches prefix. "/categories/" will match "/categories/1"
 	http.HandleFunc("/categories/", categoryHandler.HandleCategoryByID)
+	http.HandleFunc("/products/", productHandler.HandleProductByID)
 
 	// Route for Transaction or Checkout
 	http.HandleFunc("/checkout", transactionHandler.HandleCheckout) // POST
-
+	// Route for Reporting
+	http.HandleFunc("/report", transactionHandler.HandleReport)       // GET ?start_date=...&end_date=...
+	http.HandleFunc("/report/today", transactionHandler.HandleReport) // GET
+	
 	addr := "0.0.0.0:" + config.Port
 	fmt.Println("Server running di", addr)
 

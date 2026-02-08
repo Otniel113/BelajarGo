@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"cashier/models"
 	"fmt"
+	"time"
 )
 
 type TransactionRepository struct {
@@ -85,4 +86,38 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 		TotalAmount: totalAmount,
 		Details:     details,
 	}, nil
+}
+
+func (repo *TransactionRepository) GetReport(startDate, endDate time.Time) (*models.Report, error) {
+	var report models.Report
+
+	// 1. Total Revenue & Total Transactions
+	err := repo.db.QueryRow(`
+        SELECT COALESCE(SUM(total_amount), 0), COUNT(id)
+        FROM transactions
+        WHERE created_at BETWEEN $1 AND $2
+    `, startDate, endDate).Scan(&report.TotalRevenue, &report.TotalTransaction)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Most Sold Product
+	err = repo.db.QueryRow(`
+        SELECT p.name, COALESCE(SUM(td.quantity), 0) as sold_qty
+        FROM transaction_details td
+        JOIN products p ON td.product_id = p.id
+        JOIN transactions t ON td.transaction_id = t.id
+        WHERE t.created_at BETWEEN $1 AND $2
+        GROUP BY p.name
+        ORDER BY sold_qty DESC
+        LIMIT 1
+    `, startDate, endDate).Scan(&report.MostSoldProduct.Name, &report.MostSoldProduct.SoldQty)
+
+	if err == sql.ErrNoRows {
+		report.MostSoldProduct = models.MostSoldProduct{Name: "", SoldQty: 0}
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &report, nil
 }
