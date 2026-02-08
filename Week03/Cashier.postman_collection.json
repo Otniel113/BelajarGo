@@ -177,6 +177,32 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "POST Transaction or Checkout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \r\n    \"items\":[\r\n        {\r\n        \"product_id\": 1,\r\n        \"quantity\": 2\r\n        },\r\n        {\r\n        \"product_id\": 3,\r\n        \"quantity\": 1\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{goURL}}/checkout",
+					"host": [
+						"{{goURL}}"
+					],
+					"path": [
+						"checkout"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [

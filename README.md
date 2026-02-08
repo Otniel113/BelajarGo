@@ -24,3 +24,10 @@ Lihat [README Week 01](Week01/README.md) untuk detail tugas dan dokumentasi API.
 3. Setup .env
 
 Lihat [README Week 02](Week02/README.md) untuk detail tugas dan dokumentasi API.
+
+### Week 03:
+1. Implementasi Get Product By Name menggunakan Parameter Query
+2. Membuat Transaksi dan Checkout
+3. Sales Summary Report Hari ini dan juga dengan rentang waktu tertentu
+
+Lihat [README Week 03](Week03/README.md) untuk detail tugas dan dokumentasi API.

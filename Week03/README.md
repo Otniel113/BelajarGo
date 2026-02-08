@@ -1,6 +1,6 @@
 # Progress Week 3
 
-Bisa mencari product berdasarkan nama atau id dengan parameter query.
+Bisa mencari product berdasarkan nama dengan parameter query, membuat transaksi atau checkout, dan summary report hari ini dan rentang custom.
 
 ## Setup Go dan Environment
 
@@ -59,24 +59,7 @@ Jika pakai `psql` CLI:
 psql "${DB_CONN}" -f init.sql
 ```
 
-Atau jalankan query SQL berikut di PgAdmin / Supabase SQL editor:
-
-```sql
-CREATE TABLE IF NOT EXISTS categories (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT
-);
-
-CREATE TABLE IF NOT EXISTS products (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    price INT DEFAULT 0,
-    stock INT DEFAULT 0,
-    category_id INT,
-    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id)
-);
-```
+Atau copy-paste query SQL di PgAdmin / Supabase SQL editor dari `init.sql`.
 
 - Menjalankan aplikasi:
 
@@ -103,15 +86,24 @@ go run main.go
 | GET | `/products` | Get all products with Category (supports query params `name`) | Optional query params: `name` | `[]Product` |
 | POST | `/products` | Create product | `{"name": "...", "price": 100, "stock": 10, "category_id": 1}` | `Product` (Created) |
 
+### Transactions
+
+| Method | Endpoint | Description | Request Body | Response |
+|---|---|---|---|---|
+| POST | `/api/checkout` | Create a transaction (checkout) from multiple items | `{"items":[{"product_id":1,"quantity":2}]}` | `Transaction` with `id`, `total_amount`, `created_at`, `details` |
+
+- Headers: `Content-Type: application/json`
+- Errors: `400` for invalid body, `500` for server/repo errors (e.g., insufficient stock)
+
 ## Postman Collections
 
-Koleksi Postman dapat diakses di file: [Categories-API-Collections.json](Categories-API-Collections.json)
+Koleksi Postman dapat diakses di file: [Cashier.postman_collection.json](Cashier.postman_collection.json)
 
 ### Panduan Import ke Postman:
 
 1.  Buka aplikasi **Postman**.
 2.  Klik tombol **Import** di pojok kiri atas (di bawah nama Workspace).
-3.  Pilih tab **File** dan klik **files** atau drag-and-drop file `Categories-API-Collections.json`.
+3.  Pilih tab **File** dan klik **files** atau drag-and-drop file `Cashier.postman_collection.json`.
 4.  Klik **Import** untuk konfirmasi.
 5.  Pastikan Server Go kamu sudah berjalan di `localhost:8080` jika ingin menjalankan di local.
 6.  Gunakan environment variable `{{goURL}}` untuk mengganti linknya jika ingin melihatnya di deployment.

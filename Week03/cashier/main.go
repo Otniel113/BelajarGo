@@ -59,6 +59,11 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
+	// Initialize dependencies (Transaction)
+	transactionRepo := repositories.NewTransactionRepository(db)
+	transactionService := services.NewTransactionService(transactionRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
 	// Setup routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to the Cashier API"))
@@ -71,6 +76,9 @@ func main() {
 	// Route for GetByID, Update, Delete. 
 	// Note: http.HandleFunc matches prefix. "/categories/" will match "/categories/1"
 	http.HandleFunc("/categories/", categoryHandler.HandleCategoryByID)
+
+	// Route for Transaction or Checkout
+	http.HandleFunc("/checkout", transactionHandler.HandleCheckout) // POST
 
 	addr := "0.0.0.0:" + config.Port
 	fmt.Println("Server running di", addr)
