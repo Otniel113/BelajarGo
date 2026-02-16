@@ -30,7 +30,7 @@ Lihat [README Week 02](Week02/README.md) untuk detail tugas, setup, dan dokument
 2. Membuat Transaksi dan Checkout
 3. Sales Summary Report Hari ini dan juga dengan rentang waktu tertentu
 
-Lihat [README Week 03](Week03/README.md) untuk detail tugas, setup dan dokumentasi API.
+Lihat [README Week 03](Week03/README.md) untuk detail tugas, setup, dan dokumentasi API.
 
 ### Week 04:
 Implementasi Middlewares:
@@ -38,4 +38,13 @@ Implementasi Middlewares:
 2. CORS
 3. Logger
 
-Lihat [README Week 04](Week04/README.md) untuk detail tugas, setup dan dokumentasi API.
+Lihat [README Week 04](Week04/README.md) untuk detail tugas, setup, dan dokumentasi API.
+
+### Week 05:
+Sesi belajar mandiri, bukan tugas. Melengkapi sehingga bisa production ready:
+1. Menambah Login-Register
+2. Middleware Auth diganti menggunakan JWT
+3. Ada 2 macam user dan memiliki otorisasi berbeda: Admin dan Member
+4. Menambahkan framework: Chi
+
+Lihat [README Week 05](Week05-Complete/README.md) untuk detail implemetasi, setup, dan dokumentasi API.
