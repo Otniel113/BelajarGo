@@ -23,11 +23,19 @@ Lihat [README Week 01](Week01/README.md) untuk detail tugas dan dokumentasi API.
 2. Menghubungkan ke Database
 3. Setup .env
 
-Lihat [README Week 02](Week02/README.md) untuk detail tugas dan dokumentasi API.
+Lihat [README Week 02](Week02/README.md) untuk detail tugas, setup, dan dokumentasi API.
 
 ### Week 03:
 1. Implementasi Get Product By Name menggunakan Parameter Query
 2. Membuat Transaksi dan Checkout
 3. Sales Summary Report Hari ini dan juga dengan rentang waktu tertentu
 
-Lihat [README Week 03](Week03/README.md) untuk detail tugas dan dokumentasi API.
+Lihat [README Week 03](Week03/README.md) untuk detail tugas, setup dan dokumentasi API.
+
+### Week 04:
+Implementasi Middlewares:
+1. Auth dengan API Key
+2. CORS
+3. Logger
+
+Lihat [README Week 04](Week04/README.md) untuk detail tugas, setup dan dokumentasi API.
