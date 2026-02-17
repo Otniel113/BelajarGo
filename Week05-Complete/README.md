@@ -1,154 +1,110 @@
-# Progress Week 5
+# Progress Week 5 - Complete
 
-Melengkapi seluruh kekurangan agar production ready. Antara lain:
-1. Menambah Authentikasi: Login-Register
-2. Middleware Auth diganti menggunakan JWT dari API Key
-3. Ada 2 macam user dan memiliki otorisasi berbeda: Admin dan Member
-4. Menambahkan framework: Chi. Karena Chi compatible dengan projek sebelumnya yang menggunakan `net/http`
+Proyek ini adalah versi final dari API Kasir (Cashier API) yang telah dilengkapi dengan fitur production-ready:
+1.  **Autentikasi & Otorisasi:** Implementasi Login dan Register menggunakan JWT (JSON Web Tokens).
+2.  **Role-Based Access Control (RBAC):** Hak akses berbeda untuk `admin` dan `member`.
+3.  **Routing Modern:** Menggunakan library `chi` yang tetap kompatibel dengan middleware standar `net/http`.
+4.  **Keamanan:** Hashing password menggunakan `bcrypt` dan middleware validasi JWT.
+5.  **Pendaftaran Otomatis:** User baru akan otomatis terdaftar sebagai `member` secara default.
 
-## Setup Go dan Environment
+## Persiapan Go dan Environment
 
-Persiapan singkat untuk menjalankan proyek Week05 (`cashier`) secara lokal.
+Ikuti langkah-langkah berikut untuk menjalankan proyek `cashier` secara lokal.
 
-- Prasyarat:
-    - Install Go (versi 1.20+ direkomendasikan). Cek versi dengan:
+1.  **Versi Go:** Pastikan Anda menggunakan Go versi 1.22 ke atas (diperlukan untuk pola routing `net/http` terbaru dan `chi`).
+2.  **Masuk ke folder project:**
+    ```bash
+    cd "Week05-Complete/cashier"
+    ```
+3.  **Install Dependency:**
+    ```bash
+    go mod tidy
+    ```
+4.  **Konfigurasi Environment (`.env`):**
+    Salin file `.env.example` menjadi `.env` dan sesuaikan nilainya.
 
-```bash
-go version
-```
+    **Windows (PowerShell):**
+    ```powershell
+    Copy-Item .env.example .env
+    ```
+    **macOS / Linux:**
+    ```bash
+    cp .env.example .env
+    ```
 
-- Masuk ke folder project:
+    Isi file `.env` dengan detail database Anda:
+    ```dotenv
+    DB_CONN=postgresql://user:pass@host:port/dbname?sslmode=require
+    PORT=8080
+    JWT_SECRET=kode_rahasia_jwt_anda
+    ```
+    *Catatan: API_KEY sudah tidak digunakan lagi dan digantikan sepenuhnya oleh JWT.*
 
-```bash
-cd "BelajarGo/Week05-Complete/cashier"
-```
+5.  **Migrasi Database:**
+    Jalankan file `init.sql` untuk membuat tabel yang diperlukan (`users`, `categories`, `products`, `transactions`, `transaction_details`).
 
-- Install dependency dan bersihkan module:
+    Jika menggunakan `psql` CLI:
+    ```bash
+    psql "${DB_CONN}" -f init.sql
+    ```
 
-```bash
-go get github.com/jackc/pgx/v5/stdlib
-go get github.com/spf13/viper
-go mod tidy
-```
+6.  **Menjalankan Aplikasi:**
+    ```bash
+    go run main.go
+    ```
 
-- Salin file environment dan sesuaikan nilainya (copy ` .env.example` ke `.env`):
+## Aturan Autentikasi & Otorisasi (RBAC)
 
-Windows (PowerShell):
-```powershell
-Copy-Item .env.example .env
-notepad .env
-```
+### Hak Akses Per Role
+- **Admin:** Akses penuh untuk mengelola (Create, Update, Delete) kategori dan produk, serta melihat laporan keuangan.
+- **Member:** Bisa melihat kategori/produk dan melakukan transaksi (checkout).
+- **Public (Non-Login):** Hanya bisa melihat daftar kategori/produk dan melakukan pendaftaran/login.
 
-macOS / Linux:
-```bash
-cp .env.example .env
-nano .env
-```
+### Persyaratan Request
+Selain endpoint publik, semua request wajib menyertakan header:
+`Authorization: Bearer <token_jwt_anda>`
 
-- Isi `DB_CONN` pada `.env` dengan connection string Postgres kamu. Contoh format:
+## Daftar API Endpoint
 
-```
-DB_CONN=postgresql://<DB_USER>:<DB_PASSWORD>@<HOST>:<PORT>/<DB_NAME>?sslmode=require
-PORT=8080
-API_KEY=your_secret_api_key
-```
+### Autentikasi
+| Method | Endpoint    | Deskripsi                     | Body                                    | Query | Akses  |
+| ------ | ----------- | ----------------------------- | --------------------------------------- | ----- | ------ |
+| POST   | `/register` | Daftar sebagai `member`       | `{"username", "email", "password"}`     | -     | Publik |
+| POST   | `/login`    | Login (mendapat token 30m)    | `{"identity", "password"}`              | -     | Publik |
+| POST   | `/logout`   | Logout (client-side discard)  | -                                       | -     | Publik |
 
-Catatan:
-- Pastikan semua request menyertakan header `X-API-Key` dengan nilai yang sesuai.
-- Jika password mengandung karakter khusus (mis. `!`, `@`, `:`), pastikan URL-encode karakter tersebut (mis. `!` -> `%21`).
-- Pastikan `DB_CONN` sesuai dengan nama variable yang digunakan aplikasi (`DB_CONN`).
+### Kategori & Produk
+| Method | Endpoint           | Deskripsi                    | Body                                            | Query        | Hak Akses   |
+| ------ | ------------------ | ---------------------------- | ----------------------------------------------- | ------------ | ----------- |
+| GET    | `/categories`      | Ambil semua kategori         | -                                               | -            | Publik      |
+| GET    | `/categories/{id}` | Detail kategori              | -                                               | -            | Publik      |
+| POST   | `/categories`      | Tambah kategori baru         | `{"name", "description"}`                       | -            | Admin       |
+| PUT    | `/categories/{id}` | Update kategori              | `{"name", "description"}`                       | -            | Admin       |
+| DELETE | `/categories/{id}` | Hapus kategori               | -                                               | -            | Admin       |
+| GET    | `/products`        | Ambil semua produk           | -                                               | `name`       | Publik      |
+| POST   | `/products`        | Tambah produk baru           | `{"name", "price", "stock", "category_id"}`      | -            | Admin       |
+| PUT    | `/products/{id}`   | Update produk                | `{"name", "price", "stock", "category_id"}`      | -            | Admin       |
+| DELETE | `/products/{id}`   | Hapus produk                 | -                                               | -            | Admin       |
 
-- Buat tabel `categories` dan `products` jika belum ada. Contoh menjalankan `init.sql`:
+### Transaksi & Laporan
+| Method | Endpoint         | Deskripsi                          | Body                                           | Query                     | Hak Akses    |
+| ------ | ---------------- | ---------------------------------- | ---------------------------------------------- | ------------------------- | ------------ |
+| POST   | `/checkout`      | Buat transaksi baru (Checkout)     | `{"items": [{"product_id", "quantity"}]}`      | -                         | Member       |
+| GET    | `/report`        | Laporan lengkap berdasarkan range  | -                                              | `start_date`, `end_date`  | Admin        |
+| GET    | `/report/today`  | Laporan transaksi hari ini         | -                                              | -                         | Admin        |
 
-Jika pakai `psql` CLI:
-```bash
-psql "${DB_CONN}" -f init.sql
-```
+## Validasi & Fitur Tambahan
+- **Registrasi:** Email melalui validasi format regex. Password harus minimal 6 karakter.
+- **Login:** Token JWT berlaku selama **30 menit**.
+- **Logout:** Endpoint `/logout` tersedia untuk konfirmasi aksi logout di sisi client.
+- **Checkout:** User ID akan otomatis tersimpan dalam database transaksi berdasarkan token JWT yang dilampirkan.
 
-Atau copy-paste query SQL di PgAdmin / Supabase SQL editor dari `init.sql`.
-
-- Menjalankan aplikasi:
-
-```bash
-go run main.go
-```
-
-## API Endpoint
-
-### Categories
-
-| Method | Endpoint | Description | Request Body | Response |
-|---|---|---|---|---|
-| GET | `/categories` | Get all categories | - | `[]Category` |
-| POST | `/categories` | Create category | `{"name": "...", "description": "..."}` | `Category` (Created) |
-| GET | `/categories/{id}` | Get category by ID | - | `Category` |
-| PUT | `/categories/{id}` | Update category | `{"name": "...", "description": "..."}` | `Category` |
-| DELETE | `/categories/{id}` | Delete category | - | `{"message": "success delete category"}` |
-
-### Products
-
-| Method | Endpoint | Description | Request Body | Response |
-|---|---|---|---|---|
-| GET | `/products` | Get all products with Category (supports query params `name`) | Optional query params: `name` | `[]Product` |
-| POST | `/products` | Create product | `{"name": "...", "price": 100, "stock": 10, "category_id": 1}` | `Product` (Created) |
-| GET | `/products/{id}` | Get product by ID | - | `Product` |
-| PUT | `/products/{id}` | Update product | `{"name": "...", "price": 200, "stock": 3, "category_id": 1}` | `Product` |
-| DELETE | `/products/{id}` | Delete product | - | `{"message": "success delete product"}` |
-
-### Transactions
-
-| Method | Endpoint | Description | Request Body | Response |
-|---|---|---|---|---|
-| POST | `/checkout` | Create a transaction (checkout) from multiple items | `{"items":[{"product_id":1,"quantity":2}]}` | `Transaction` with `id`, `total_amount`, `created_at`, `details` |
-
-- Headers: `Content-Type: application/json`
-- Errors: `400` for invalid body, `500` for server/repo errors (e.g., insufficient stock)
-
-### Reports
-
-| Method | Endpoint | Description | Query Params | Response |
-|---|---|---|---|---|
-| GET | `/report/today` | Get report for today | - | `Report` |
-| GET | `/report` | Get report for date range | `start_date`, `end_date` (YYYY-MM-DD) | `Report` |
-
-**Response Example:**
-```json
-{
-    "total_revenue": 45000,
-    "total_transaction": 5,
-    "most_sold_product":{
-        "name": "Indomie Goreng",
-        "sold_qty":12
-    }
-}
-```
-
-## Postman Collections
-
+## Koleksi Postman
 Koleksi Postman dapat diakses di file: [Cashier.postman_collection.json](Cashier.postman_collection.json)
 
-### Panduan Import ke Postman:
-
-1.  Setup terlebih dahulu untuk nama variable URL dan API Key pada [Postman Collection](Cashier.postman_collection.json).
-```json
-"variable": [
-		{
-			"key": "goURL",
-			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "api_key",
-			"value": "",
-			"type": "string"
-		}
-]
-```
-
-2.  Buka aplikasi **Postman**.
-3.  Pergi ke tab **Workspaces** di kiri atas dan pilih Workspaces yang diinginkan jika belum berada di Wokkspaces
-3.  Klik tombol **Import** di pojok kiri atas (di bawah nama Workspace).
-4.  Pilih tab **File** dan klik **files** atau drag-and-drop file `Cashier.postman_collection.json`.
-5.  Klik **Import** untuk konfirmasi.
-6.  Jika ingin ada perubahan variabel, klik **Collections** di kiri, pilih **Cashier**, klik titik tiga, pilih **Edit**, lalu tab **Variables**
-7.  Ubah isi variabel dan klik **Save**
+### Cara Import ke Postman:
+1. Buka aplikasi **Postman**.
+2. Klik tombol **Import** di pojok kiri atas.
+3. Pilih file `Cashier.postman_collection.json` dari folder ini.
+4. Sesuaikan variabel `goURL` di tab Variables koleksi tersebut.
+5. Gunakan tipe **Bearer Token** pada tab Authorization dan masukkan JWT yang didapat dari `/login` untuk mengakses endpoint terproteksi.

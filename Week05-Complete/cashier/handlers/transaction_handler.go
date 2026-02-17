@@ -28,6 +28,13 @@ func (h *TransactionHandler) HandleCheckout(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *TransactionHandler) Checkout(w http.ResponseWriter, r *http.Request) {
+	// 1. Get user_id from context (added by AuthMiddleware)
+	userID, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var req models.CheckoutRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -35,7 +42,7 @@ func (h *TransactionHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transaction, err := h.service.Checkout(req.Items, true)
+	transaction, err := h.service.Checkout(userID, req.Items, true)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

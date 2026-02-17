@@ -9,10 +9,12 @@ import (
 
 	"cashier/database"
 	"cashier/handlers"
+	"cashier/middlewares"
 	"cashier/repositories"
 	"cashier/services"
-	"cashier/middlewares"
 
+	"github.com/go-chi/chi/v5"
+	chi_middleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/spf13/viper"
 )
 
@@ -26,80 +28,99 @@ func main() {
 	}
 
 	type Config struct {
-		Port   string `mapstructure:"PORT"`
-		DBConn string `mapstructure:"DB_CONN"`
-		API_KEY string `mapstructure:"API_KEY"`
+		Port      string `mapstructure:"PORT"`
+		DBConn    string `mapstructure:"DB_CONN"`
+		JWTSecret string `mapstructure:"JWT_SECRET"`
 	}
 
 	config := Config{
-		Port:   viper.GetString("PORT"),
-		DBConn: viper.GetString("DB_CONN"),
-		API_KEY: viper.GetString("API_KEY"),
+		Port:      viper.GetString("PORT"),
+		DBConn:    viper.GetString("DB_CONN"),
+		JWTSecret: viper.GetString("JWT_SECRET"),
 	}
 
-	// Default port if not set
 	if config.Port == "" {
 		config.Port = "8080"
 	}
+	if config.JWTSecret == "" {
+		config.JWTSecret = "super-secret-key-12345" // Fallback
+	}
 
-	// Login info for debug
 	log.Printf("Starting server on port %s", config.Port)
-	log.Printf("Connecting to database...")
 
-	// Setup database
 	db, err := database.InitDB(config.DBConn)
 	if err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
 
-	// Setup middleware
-	apiKeyMiddleware := middlewares.APIKey(config.API_KEY)
-
-	// Middleware chain: Logger -> CORS -> APIKey
-	withMiddlewares := func(h http.HandlerFunc) http.HandlerFunc {
-		return middlewares.Logger(middlewares.CORS(apiKeyMiddleware(h)))
-	}
-
-	// Initialize dependencies (Category)
+	// Initialize Repositories
+	authRepo := repositories.NewAuthRepository(db)
 	categoryRepo := repositories.NewCategoryRepository(db)
-	categoryService := services.NewCategoryService(categoryRepo)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
-
-	// Initialize dependencies (Product)
 	productRepo := repositories.NewProductRepository(db)
-	productService := services.NewProductService(productRepo)
-	productHandler := handlers.NewProductHandler(productService)
-
-	// Initialize dependencies (Transaction)
 	transactionRepo := repositories.NewTransactionRepository(db)
+
+	// Initialize Services
+	authService := services.NewAuthService(authRepo, config.JWTSecret)
+	categoryService := services.NewCategoryService(categoryRepo)
+	productService := services.NewProductService(productRepo)
 	transactionService := services.NewTransactionService(transactionRepo)
+
+	// Initialize Handlers
+	authHandler := handlers.NewAuthHandler(authService)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	productHandler := handlers.NewProductHandler(productService)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 
-	// Setup routes
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Welcome to the Cashier API"))
+	r := chi.NewRouter()
+
+	// Base Middlewares
+	r.Use(chi_middleware.Logger)
+	r.Use(chi_middleware.Recoverer)
+	r.Use(middlewares.CORS)
+
+	// Auth Routes
+	r.Post("/register", authHandler.Register)
+	r.Post("/login", authHandler.Login)
+	r.Post("/logout", authHandler.Logout)
+
+	// Public Routes
+	r.Get("/categories", categoryHandler.GetAll)
+	r.Get("/categories/*", categoryHandler.HandleCategoryByID)
+	r.Get("/products", productHandler.GetAll)
+	r.Get("/products/*", productHandler.HandleProductByID)
+
+	// Authenticated Routes
+	r.Group(func(r chi.Router) {
+		r.Use(middlewares.AuthMiddleware(authService))
+
+		// Member only can checkout
+		r.With(middlewares.RoleMiddleware("member")).Post("/checkout", transactionHandler.Checkout)
+
+		// Admin only
+		r.Group(func(r chi.Router) {
+			r.Use(middlewares.RoleMiddleware("admin"))
+			
+			// Categories Management
+			r.Post("/categories", categoryHandler.Create)
+			r.Put("/categories/*", categoryHandler.HandleCategoryByID)
+			r.Delete("/categories/*", categoryHandler.HandleCategoryByID)
+
+			// Products Management
+			r.Post("/products", productHandler.Create)
+			r.Put("/products/*", productHandler.HandleProductByID)
+			r.Delete("/products/*", productHandler.HandleProductByID)
+
+			// Reports
+			r.Get("/report", transactionHandler.HandleReport)
+			r.Get("/report/today", transactionHandler.HandleReport)
+		})
 	})
 
-	// Route for List and Create
-	http.HandleFunc("/categories", withMiddlewares(categoryHandler.HandleCategories))
-	http.HandleFunc("/products", withMiddlewares(productHandler.HandleProducts))
-	
-	// Route for GetByID, Update, Delete. 
-	// Note: http.HandleFunc matches prefix. "/categories/" will match "/categories/1"
-	http.HandleFunc("/categories/", withMiddlewares(categoryHandler.HandleCategoryByID))
-	http.HandleFunc("/products/", withMiddlewares(productHandler.HandleProductByID))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Welcome to the Cashier API (Week 05)"))
+	})
 
-	// Route for Transaction or Checkout
-	http.HandleFunc("/checkout", withMiddlewares(transactionHandler.HandleCheckout)) // POST
-	// Route for Reporting
-	http.HandleFunc("/report", withMiddlewares(transactionHandler.HandleReport))       // GET ?start_date=...&end_date=...
-	http.HandleFunc("/report/today", withMiddlewares(transactionHandler.HandleReport)) // GET
-	
 	addr := "0.0.0.0:" + config.Port
 	fmt.Println("Server running di", addr)
-
-	err = http.ListenAndServe(addr, nil)
-	if err != nil {
-		log.Fatal("gagal running server:", err)
-	}
+	log.Fatal(http.ListenAndServe(addr, r))
 }

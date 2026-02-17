@@ -252,6 +252,80 @@
 			]
 		},
 		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"abiezer\",\r\n    \"email\": \"abiezer@gmail.com\",\r\n    \"password\": \"P4$$word\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{goURL}}/register",
+							"host": [
+								"{{goURL}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"identity\": \"abiezer\",\r\n    \"password\": \"P4$$word\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{goURL}}/login",
+							"host": [
+								"{{goURL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{goURL}}/logout",
+							"host": [
+								"{{goURL}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "POST Transaction or Checkout",
 			"request": {
 				"method": "POST",
@@ -323,21 +397,6 @@
 			"response": []
 		}
 	],
-	"auth": {
-		"type": "apikey",
-		"apikey": [
-			{
-				"key": "value",
-				"value": "{{api_key}}",
-				"type": "string"
-			},
-			{
-				"key": "key",
-				"value": "X-API-Key",
-				"type": "string"
-			}
-		]
-	},
 	"event": [
 		{
 			"listen": "prerequest",
@@ -362,11 +421,6 @@
 		{
 			"key": "goURL",
 			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "api_key",
-			"value": "",
 			"type": "string"
 		}
 	]

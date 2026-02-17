@@ -15,7 +15,7 @@ func NewTransactionRepository(db *sql.DB) *TransactionRepository {
 	return &TransactionRepository{db: db}
 }
 
-func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem, useLock bool) (*models.Transaction, error) {
+func (repo *TransactionRepository) CreateTransaction(userID int, items []models.CheckoutItem, useLock bool) (*models.Transaction, error) {
 	tx, err := repo.db.Begin()
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 	}
 
 	var transactionID int
-	err = tx.QueryRow("INSERT INTO transactions (total_amount) VALUES ($1) RETURNING id", totalAmount).Scan(&transactionID)
+	err = tx.QueryRow("INSERT INTO transactions (user_id, total_amount) VALUES ($1, $2) RETURNING id", userID, totalAmount).Scan(&transactionID)
 	if err != nil {
 		return nil, err
 	}
