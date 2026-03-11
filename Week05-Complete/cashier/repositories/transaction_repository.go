@@ -121,3 +121,46 @@ func (repo *TransactionRepository) GetReport(startDate, endDate time.Time) (*mod
 
 	return &report, nil
 }
+
+func (repo *TransactionRepository) GetHistory(userID int) ([]models.Transaction, error) {
+	rows, err := repo.db.Query("SELECT id, user_id, total_amount, created_at FROM transactions WHERE user_id = $1 ORDER BY created_at DESC", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var transactions []models.Transaction
+	for rows.Next() {
+		var tx models.Transaction
+		if err := rows.Scan(&tx.ID, &tx.UserID, &tx.TotalAmount, &tx.CreatedAt); err != nil {
+			return nil, err
+		}
+		
+		// Get details for this transaction
+		detailRows, err := repo.db.Query(`
+			SELECT td.id, td.transaction_id, td.product_id, p.name, td.quantity, td.subtotal 
+			FROM transaction_details td
+			JOIN products p ON td.product_id = p.id
+			WHERE td.transaction_id = $1
+		`, tx.ID)
+		if err != nil {
+			return nil, err
+		}
+		
+		var details []models.TransactionDetail
+		for detailRows.Next() {
+			var dt models.TransactionDetail
+			if err := detailRows.Scan(&dt.ID, &dt.TransactionID, &dt.ProductID, &dt.ProductName, &dt.Quantity, &dt.Subtotal); err != nil {
+				detailRows.Close()
+				return nil, err
+			}
+			details = append(details, dt)
+		}
+		detailRows.Close()
+		
+		tx.Details = details
+		transactions = append(transactions, tx)
+	}
+
+	return transactions, nil
+}

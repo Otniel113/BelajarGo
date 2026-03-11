@@ -21,3 +21,7 @@ func (s *TransactionService) Checkout(userID int, items []models.CheckoutItem, u
 func (s *TransactionService) GetReport(startDate, endDate time.Time) (*models.Report, error) {
 	return s.repo.GetReport(startDate, endDate)
 }
+
+func (s *TransactionService) GetHistory(userID int) ([]models.Transaction, error) {
+	return s.repo.GetHistory(userID)
+}

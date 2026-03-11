@@ -98,8 +98,9 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(middlewares.AuthMiddleware(authService))
 
-		// Member only can checkout
+		// Member only can checkout and view history
 		r.With(middlewares.RoleMiddleware("member")).Post("/checkout", transactionHandler.Checkout)
+		r.With(middlewares.RoleMiddleware("member")).Get("/history", transactionHandler.History)
 
 		// Admin only
 		r.Group(func(r chi.Router) {

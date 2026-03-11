@@ -395,6 +395,23 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "GET Transaction History",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{goURL}}/history",
+					"host": [
+						"{{goURL}}"
+					],
+					"path": [
+						"history"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [

@@ -91,6 +91,7 @@ Selain endpoint publik, semua request wajib menyertakan header:
 | Method | Endpoint         | Deskripsi                          | Body                                           | Query                     | Hak Akses    |
 | ------ | ---------------- | ---------------------------------- | ---------------------------------------------- | ------------------------- | ------------ |
 | POST   | `/checkout`      | Buat transaksi baru (Checkout)     | `{"items": [{"product_id", "quantity"}]}`      | -                         | Member       |
+| GET    | `/history`       | Riwayat transaksi user login       | -                                              | -                         | Member       |
 | GET    | `/report`        | Laporan lengkap berdasarkan range  | -                                              | `start_date`, `end_date`  | Admin        |
 | GET    | `/report/today`  | Laporan transaksi hari ini         | -                                              | -                         | Admin        |
 
