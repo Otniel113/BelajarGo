@@ -37,6 +37,7 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek `cashier` secara lokal.
     DB_CONN=postgresql://user:pass@host:port/dbname?sslmode=require
     PORT=8080
     JWT_SECRET=kode_rahasia_jwt_anda
+    FRONTEND_URL=http://localhost:5173
     ```
     *Catatan: API_KEY sudah tidak digunakan lagi dan digantikan sepenuhnya oleh JWT.*
 

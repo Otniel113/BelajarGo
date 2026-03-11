@@ -28,15 +28,17 @@ func main() {
 	}
 
 	type Config struct {
-		Port      string `mapstructure:"PORT"`
-		DBConn    string `mapstructure:"DB_CONN"`
-		JWTSecret string `mapstructure:"JWT_SECRET"`
+		Port        string `mapstructure:"PORT"`
+		DBConn      string `mapstructure:"DB_CONN"`
+		JWTSecret   string `mapstructure:"JWT_SECRET"`
+		FrontendURL string `mapstructure:"FRONTEND_URL"`
 	}
 
 	config := Config{
-		Port:      viper.GetString("PORT"),
-		DBConn:    viper.GetString("DB_CONN"),
-		JWTSecret: viper.GetString("JWT_SECRET"),
+		Port:        viper.GetString("PORT"),
+		DBConn:      viper.GetString("DB_CONN"),
+		JWTSecret:   viper.GetString("JWT_SECRET"),
+		FrontendURL: viper.GetString("FRONTEND_URL"),
 	}
 
 	if config.Port == "" {
@@ -44,6 +46,9 @@ func main() {
 	}
 	if config.JWTSecret == "" {
 		config.JWTSecret = "super-secret-key-12345" // Fallback
+	}
+	if config.FrontendURL == "" {
+		config.FrontendURL = "*"
 	}
 
 	log.Printf("Starting server on port %s", config.Port)
@@ -76,7 +81,7 @@ func main() {
 	// Base Middlewares
 	r.Use(chi_middleware.Logger)
 	r.Use(chi_middleware.Recoverer)
-	r.Use(middlewares.CORS)
+	r.Use(middlewares.CORS(config.FrontendURL))
 
 	// Auth Routes
 	r.Post("/register", authHandler.Register)
